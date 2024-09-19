@@ -14,28 +14,73 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Update apt-get and install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libvlc-dev libvlccore-dev -y
+
       - uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.2.5
 
-      - name: Install Haxelib Dependencies
+      - name: Setup Haxelib
         run: |
-          sudo apt-get update
-          sudo apt-get install libvlc-dev libvlccore-dev -y
           haxelib setup ~/haxelib
+
+      - name: Install Lime
+        run: |
           haxelib install lime
+
+      - name: Install OpenFL
+        run: |
           haxelib install openfl
+
+      - name: Install Flixel
+        run: |
           haxelib install flixel
+
+      - name: Install Flixel Addons
+        run: |
           haxelib install flixel-addons
+
+      - name: Install Flixel Tools
+        run: |
           haxelib install flixel-tools
+
+      - name: Install Flixel UI
+        run: |
           haxelib install flixel-ui
+
+      - name: Install Hxcpp
+        run: |
           haxelib install hxcpp
+
+      - name: Install TJSON
+        run: |
           haxelib install tjson
+
+      - name: Install HxCodec
+        run: |
           haxelib install hxCodec
+
+      - name: Install SScript
+        run: |
           haxelib install SScript
+
+      - name: Install Hxcpp Debug Server
+        run: |
           haxelib install hxcpp-debug-server
+
+      - name: Install Discord RPC
+        run: |
           haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+
+      - name: Install Linc Luajit
+        run: |
           haxelib git linc_luajit https://github.com/superpowers04/linc_luajit
+
+      - name: Install Android Extensions
+        run: |
           haxelib install extension-android-tools
           haxelib install extension-vibrate
 
