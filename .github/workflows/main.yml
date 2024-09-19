@@ -50,8 +50,3 @@ jobs:
         with:
           name: androidBuild
           path: 'export/release/android/bin'
-
-      - name: Delete Artifact After 24 Hours
-        uses: josephpage/delete-artifact@v1
-        with:
-          age: 1d
