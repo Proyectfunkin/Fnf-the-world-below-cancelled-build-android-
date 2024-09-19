@@ -68,6 +68,16 @@
       "dir": null,
       "ref": "master",
       "url": "https://github.com/superpowers04/linc_luajit"
+    },
+    {
+      "name": "extension-android-tools",
+      "type": "haxelib",
+      "version": null
+    },
+    {
+      "name": "extension-vibrate",
+      "type": "haxelib",
+      "version": null
     }
   ]
 }
