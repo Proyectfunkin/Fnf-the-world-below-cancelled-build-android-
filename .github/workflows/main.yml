@@ -1,6 +1,5 @@
 name: Build APK
 
-# Controls when the action will run.
 on:
   push:
     branches: [ main, experimental ]
@@ -19,20 +18,34 @@ jobs:
         with:
           haxe-version: 4.2.5
 
-      # Installing required dependencies for Haxe and Android
+      # Install required dependencies for Haxe and Android
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libvlc-dev libvlccore-dev openjdk-11-jdk android-sdk
 
-      # Install Haxelib and other Haxe libraries
-      - name: Install Haxelib and Haxe Dependencies
+      # Retry logic for haxelib setup
+      - name: Haxelib Setup and Library Installation
         run: |
-          haxelib setup ~/haxelib
-          haxelib install hxcpp --quiet || echo "Failed to install hxcpp"
-          haxelib install lime --quiet || echo "Failed to install lime"
-          haxelib install openfl --quiet || echo "Failed to install openfl"
-          haxelib install hmm --quiet || echo "Failed to install hmm"
+          haxelib setup ~/haxelib || echo "Retrying haxelib setup"
+          
+          # Retry the installations 3 times in case of failure
+          for i in 1 2 3; do
+            haxelib install hxcpp --quiet && break || echo "Retrying hxcpp ($i)"
+          done
+          
+          for i in 1 2 3; do
+            haxelib install lime --quiet && break || echo "Retrying lime ($i)"
+          done
+          
+          for i in 1 2 3; do
+            haxelib install openfl --quiet && break || echo "Retrying openfl ($i)"
+          done
+          
+          for i in 1 2 3; do
+            haxelib install hmm --quiet && break || echo "Retrying hmm ($i)"
+          done
+
           haxelib run hmm install || echo "Failed to run hmm install"
 
       - name: Create Version Tag
