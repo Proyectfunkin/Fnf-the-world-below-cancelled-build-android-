@@ -16,15 +16,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Set up Haxe environment
+      # Set up Haxe environment using a reliable setup
       - name: Setup Haxe
-        uses: haxe-foundation/setup-haxe@v1
-        with:
-          haxe-version: '4.2.5'
-
-      # Update haxelib to avoid issues with outdated versions
-      - name: Update Haxelib
-        run: haxelib selfupdate
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y haxe
+          haxelib setup ~/haxelib
+          haxelib install lime
+          haxelib install openfl
 
       # Install Haxelib dependencies with retries to avoid network issues
       - name: Install Haxelib Dependencies
@@ -53,8 +52,7 @@ jobs:
           name: android-apk
           path: export/release/android/bin
 
-      # Clean up artifacts after 24 hours
-      - name: Clean up Artifacts
-        uses: GeekMasher/delete-artifact@v1
-        with:
-          time: 24
+      # Add cleanup for artifacts manually (GitHub Actions does not natively support timed cleanup)
+      - name: Cleanup Artifacts
+        run: |
+          find export/release/android/bin -type f -name "*.apk" -mtime +1 -exec rm -f {} \;
