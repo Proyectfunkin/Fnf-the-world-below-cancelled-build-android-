@@ -31,10 +31,11 @@ jobs:
           for i in {1..3}; do
             haxelib install lime && haxelib install openfl && break || sleep 10
           done
-          
-      # Install other project-specific dependencies from hmm
-      - name: Install Project Dependencies
+
+      # Install HMM (Haxe Module Manager)
+      - name: Install HMM
         run: |
+          haxelib install hmm --quiet
           haxelib run hmm install
 
       # Create version tag based on GitHub Run ID
