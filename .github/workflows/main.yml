@@ -12,86 +12,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Update apt-get and install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libvlc-dev libvlccore-dev -y
-
-      - uses: krdlab/setup-haxe@master
+      # Set up Haxe environment
+      - name: Setup Haxe
+        uses: haxe-foundation/setup-haxe@v1
         with:
-          haxe-version: 4.2.5
+          haxe-version: '4.2.5'
 
-      - name: Setup Haxelib
+      # Update haxelib to avoid issues with outdated versions
+      - name: Update Haxelib
+        run: haxelib selfupdate
+
+      # Install Haxelib dependencies with retries to avoid network issues
+      - name: Install Haxelib Dependencies
         run: |
-          haxelib setup ~/haxelib
-
-      - name: Install Lime
+          for i in {1..3}; do
+            haxelib install lime && haxelib install openfl && break || sleep 10
+          done
+          
+      # Install other project-specific dependencies from hmm
+      - name: Install Project Dependencies
         run: |
-          haxelib install lime
+          haxelib run hmm install
 
-      - name: Install OpenFL
-        run: |
-          haxelib install openfl
-
-      - name: Install Flixel
-        run: |
-          haxelib install flixel
-
-      - name: Install Flixel Addons
-        run: |
-          haxelib install flixel-addons
-
-      - name: Install Flixel Tools
-        run: |
-          haxelib install flixel-tools
-
-      - name: Install Flixel UI
-        run: |
-          haxelib install flixel-ui
-
-      - name: Install Hxcpp
-        run: |
-          haxelib install hxcpp
-
-      - name: Install TJSON
-        run: |
-          haxelib install tjson
-
-      - name: Install HxCodec
-        run: |
-          haxelib install hxCodec
-
-      - name: Install SScript
-        run: |
-          haxelib install SScript
-
-      - name: Install Hxcpp Debug Server
-        run: |
-          haxelib install hxcpp-debug-server
-
-      - name: Install Discord RPC
-        run: |
-          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
-
-      - name: Install Linc Luajit
-        run: |
-          haxelib git linc_luajit https://github.com/superpowers04/linc_luajit
-
-      - name: Install Android Extensions
-        run: |
-          haxelib install extension-android-tools
-          haxelib install extension-vibrate
-
+      # Create version tag based on GitHub Run ID
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
 
-      - name: Build APK
+      # Build APK
+      - name: Build Android APK
         run: haxelib run lime build android --app-version="4.0.0-${{ github.run_id }}"
 
-      - name: Publish Artifact
+      # Upload the APK as an artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: androidBuild
-          path: 'export/release/android/bin'
+          name: android-apk
+          path: export/release/android/bin
+
+      # Clean up artifacts after 24 hours
+      - name: Clean up Artifacts
+        uses: GeekMasher/delete-artifact@v1
+        with:
+          time: 24
