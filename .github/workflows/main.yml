@@ -2,9 +2,9 @@ name: Build APK
 
 on:
   push:
-    branches: [ main, experimental ]
+    branches: [main, experimental]
   pull_request:
-    branches: [ main, experimental ]
+    branches: [main, experimental]
   workflow_dispatch:
 
 jobs:
@@ -18,45 +18,40 @@ jobs:
         with:
           haxe-version: 4.2.5
 
-      # Install required dependencies for Haxe and Android
-      - name: Install Dependencies
+      - name: Install Haxelib Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libvlc-dev libvlccore-dev openjdk-11-jdk android-sdk
-
-      # Retry logic for haxelib setup
-      - name: Haxelib Setup and Library Installation
-        run: |
-          haxelib setup ~/haxelib || echo "Retrying haxelib setup"
-          
-          # Retry the installations 3 times in case of failure
-          for i in 1 2 3; do
-            haxelib install hxcpp --quiet && break || echo "Retrying hxcpp ($i)"
-          done
-          
-          for i in 1 2 3; do
-            haxelib install lime --quiet && break || echo "Retrying lime ($i)"
-          done
-          
-          for i in 1 2 3; do
-            haxelib install openfl --quiet && break || echo "Retrying openfl ($i)"
-          done
-          
-          for i in 1 2 3; do
-            haxelib install hmm --quiet && break || echo "Retrying hmm ($i)"
-          done
-
-          haxelib run hmm install || echo "Failed to run hmm install"
+          sudo apt-get install libvlc-dev libvlccore-dev -y
+          haxelib setup ~/haxelib
+          haxelib install lime
+          haxelib install openfl
+          haxelib install flixel
+          haxelib install flixel-addons
+          haxelib install flixel-tools
+          haxelib install flixel-ui
+          haxelib install hxcpp
+          haxelib install tjson
+          haxelib install hxCodec
+          haxelib install SScript
+          haxelib install hxcpp-debug-server
+          haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
+          haxelib git linc_luajit https://github.com/superpowers04/linc_luajit
+          haxelib install extension-android-tools
+          haxelib install extension-vibrate
 
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
 
-      - name: Compile APK
-        run: haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}"
+      - name: Build APK
+        run: haxelib run lime build android --app-version="4.0.0-${{ github.run_id }}"
 
-      - name: Publish APK Artifact
+      - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
           name: androidBuild
           path: 'export/release/android/bin'
-          retention-days: 1
+
+      - name: Delete Artifact After 24 Hours
+        uses: josephpage/delete-artifact@v1
+        with:
+          age: 1d
