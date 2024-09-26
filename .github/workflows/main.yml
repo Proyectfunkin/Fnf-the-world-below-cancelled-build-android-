@@ -36,7 +36,7 @@ jobs:
       # Install HMM (Haxe Module Manager)
       - name: Install HMM
         run: |
-          haxelib install hmm --quiet
+          haxelib git hmm https://github.com/HaxeFoundation/hmm.git --quiet
           haxelib run hmm install
 
       # Configure Android SDK/NDK
