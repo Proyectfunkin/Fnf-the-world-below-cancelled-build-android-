@@ -1,0 +1,29 @@
+name: Clean Workflows and Artifacts
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Ejecutar cada 24 horas a las 4:00 AM UTC (medianoche en Bolivia)
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step to delete workflow files
+      - name: Delete Workflows
+        run: |
+          # Path to your workflows directory
+          WORKFLOWS_DIR=".github/workflows"
+          echo "Deleting workflows in $WORKFLOWS_DIR"
+          rm -rf $WORKFLOWS_DIR/*
+
+      # Step to delete artifacts
+      - name: Delete Artifacts
+        run: |
+          echo "Deleting all artifacts"
+          # Using GitHub CLI to delete artifacts
+          gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }} # Make sure to have the GitHub CLI installed
+          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/artifacts --jq '.artifacts[].id')
+          for id in $ARTIFACTS; do
+            gh api -X DELETE /repos/${{ github.repository }}/actions/artifacts/$id
+          done
